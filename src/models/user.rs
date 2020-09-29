@@ -1,15 +1,25 @@
+use async_graphql::*;
 use uuid::Uuid;
-#[derive(Debug, Clone, sqlx::FromRow)]
-pub struct User<'a> {
-    pub uuid: Uuid,
-    pub first_name: &'a str,
-    pub last_name: &'a str,
-    pub email: &'a str,
-    pub phone: &'a str,
+
+#[derive(GQLInputObject)]
+pub struct UserInput {
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub password: String,
 }
 
-#[async_graphql::Object]
-impl User<'_> {
+#[derive(Debug, Clone, sqlx::FromRow)]
+pub struct User {
+    pub uuid: Uuid,
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub phone: Option<String>,
+}
+
+#[Object]
+impl User {
     pub async fn id(&self) -> Uuid {
         self.uuid
     }

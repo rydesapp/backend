@@ -20,6 +20,7 @@ async fn graphql(req: Request<AppState>) -> tide::Result<Response> {
     let schema = req.state().schema.clone();
     async_graphql_tide::graphql(req, schema, |query_builder| query_builder).await
 }
+
 async fn handle_graphiql(_req: Request<AppState>) -> tide::Result {
     let playground_config = GraphQLPlaygroundConfig::new("/");
     let body = playground_source(playground_config);
@@ -28,11 +29,10 @@ async fn handle_graphiql(_req: Request<AppState>) -> tide::Result {
     resp.insert_header(headers::CONTENT_TYPE, mime::HTML);
 
     // TODO: Should the bearer cookie be removed once we set up this Graphiql session?
-
     resp.set_body(body);
-
     Ok(resp)
 }
+
 #[async_std::main]
 async fn main() -> Result<()> {
     dotenv::dotenv().ok();
