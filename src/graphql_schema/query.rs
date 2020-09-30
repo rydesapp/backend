@@ -11,10 +11,22 @@ impl QueryRoot {
         let data = ctx.data::<ContextData>()?;
         let rows = query_as!(
             User,
-            "SELECT uuid, first_name, last_name, email, phone FROM users;"
+            r"SELECT uuid, first_name, last_name, email, phone FROM users;"
         )
         .fetch_all(&data.db.pool)
         .await?;
         Ok(Some(rows))
+    }
+
+    pub async fn user(&self, ctx: &Context<'_>, user_id: uuid::Uuid) -> FieldResult<Option<User>> {
+        let data = ctx.data::<ContextData>()?;
+        let row = query_as!(
+            User,
+            r"SELECT uuid, first_name, last_name, email, phone FROM users WHERE uuid = $1;",
+            user_id
+        )
+        .fetch_one(&data.db.pool)
+        .await?;
+        Ok(Some(row))
     }
 }

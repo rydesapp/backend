@@ -2,7 +2,10 @@ use super::ContextData;
 use crate::models::*;
 use argon2::{self, Config};
 use async_graphql::{Context, FieldResult};
+use async_session::{Session, SessionStore};
+use sqlx::query;
 pub struct MutationRoot;
+
 #[async_graphql::Object]
 impl MutationRoot {
     // #[field(guard(PermissionGuard(permission = "Permission::CreateWaves")))]
@@ -31,5 +34,26 @@ RETURNING uuid, first_name, last_name, email, phone
         .fetch_one(&data.db.pool)
         .await?;
         Ok(user_row)
+    }
+    pub async fn sign_in(
+        &self,
+        ctx: &Context<'_>,
+        email: String,
+        password: String,
+    ) -> FieldResult<String> {
+        let data = ctx.data::<ContextData>()?;
+
+        let row = query!(r"SELECT uuid, password FROM users WHERE email = $1;", email)
+            .fetch_one(&data.db.pool)
+            .await?;
+        let password_correct =
+            argon2::verify_encoded(&row.password, &password.clone().into_bytes())?;
+        if password_correct {
+            let mut session = Session::new();
+            session.insert(&uuid::Uuid::new_v4().to_string(), row.uuid)?;
+            let cookie_value = data.session_store.store_session(session).await?.unwrap();
+            dbg!(cookie_value);
+        }
+        Ok(String::new())
     }
 }

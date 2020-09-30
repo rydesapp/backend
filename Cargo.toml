@@ -18,5 +18,7 @@ uuid = "0.8.1"
 async-std = {version = "1.6.2", features = ["attributes"] }
 anyhow = "1.0.32"
 async-graphql-tide = "1.17.9"
-async-redis-session = "0.1.1"
 rust-argon2 = "0.8.2"
+driftwood = "0.0.3"
+async-sqlx-session = { version = "0.2.0", features = ["pg"] }
+async-session = "2.0.1"

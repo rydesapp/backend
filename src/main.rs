@@ -5,6 +5,8 @@ use async_graphql::{
     EmptySubscription, Schema,
 };
 use database::Database;
+
+use async_sqlx_session::PostgresSessionStore;
 use graphql_schema::{ContextData, MutationRoot, QueryRoot};
 use std::env;
 use tide::{
@@ -43,9 +45,13 @@ async fn main() -> Result<()> {
 
     let db = Database::new(&database_url).await?;
 
+    let session_store =
+        PostgresSessionStore::new_with_table_name(&database_url, "users_sessions").await?;
+
     let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
-        .data(ContextData { db })
+        .data(ContextData { db, session_store })
         .finish();
+
     let app_state = AppState { schema };
 
     let mut app = Server::with_state(app_state);

@@ -1,5 +1,6 @@
 use crate::database::Database;
 use async_graphql::EmptySubscription;
+use async_sqlx_session::PostgresSessionStore;
 pub use mutation::MutationRoot;
 pub use query::QueryRoot;
 
@@ -10,4 +11,5 @@ pub type Schema = async_graphql::Schema<QueryRoot, MutationRoot, EmptySubscripti
 
 pub struct ContextData {
     pub db: Database,
+    pub session_store: PostgresSessionStore,
 }
