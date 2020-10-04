@@ -9,6 +9,7 @@ pub struct QueryRoot;
 impl QueryRoot {
     pub async fn users(&self, ctx: &Context<'_>) -> FieldResult<Option<Vec<User>>> {
         let data = ctx.data::<ContextData>()?;
+        dbg!(&ctx.data::<User>());
         let rows = query_as!(
             User,
             r"SELECT uuid, first_name, last_name, email, phone FROM users;"
