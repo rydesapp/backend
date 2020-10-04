@@ -1895,6 +1895,7 @@ dependencies = [
  "log",
  "pretty_env_logger",
  "rust-argon2",
+ "serde",
  "sqlx",
  "tide",
  "uuid",

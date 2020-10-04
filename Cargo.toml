@@ -22,3 +22,4 @@ rust-argon2 = "0.8.2"
 driftwood = "0.0.3"
 async-sqlx-session = { version = "0.2.0", features = ["pg"] }
 async-session = "2.0.1"
+serde = "1.0.116"
