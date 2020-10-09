@@ -5,7 +5,7 @@ use async_sqlx_session::PostgresSessionStore;
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::*, query_as};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct LoginInfo {
     pub email: String,
     pub password: String,
@@ -19,16 +19,17 @@ pub async fn sign_in(
     let database_url = std::env::var("DATABASE_URL")?;
     let dbpool = Database::new(&database_url).await?;
 
-    #[derive(sqlx::FromRow)]
+    #[derive(Debug, sqlx::FromRow)]
     struct UserInfo {
         uuid: uuid::Uuid,
         password: String,
     }
 
-    let row = query_as::<_, UserInfo>(r"SELECT uuid, password FROM users WHERE email = ?")
+    let row = query_as::<_, UserInfo>(r"SELECT uuid, password FROM users WHERE email = $1")
         .bind(email)
         .fetch_one(&dbpool.pool)
         .await?;
+
     let password_correct = argon2::verify_encoded(&row.password, &password.clone().into_bytes())?;
     if password_correct {
         let mut session = Session::new();

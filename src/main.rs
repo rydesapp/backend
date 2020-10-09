@@ -18,11 +18,13 @@ use tide::{
     http::{headers, mime, Cookie},
     Request, Response, Server, StatusCode,
 };
+
 mod app_state;
 mod auth;
 mod database;
 mod graphql_schema;
 mod models;
+
 async fn graphql(req: Request<AppState>) -> tide::Result<Response> {
     let schema = req.state().schema.clone();
     let mut current_user = None;
@@ -123,6 +125,7 @@ async fn main() -> Result<()> {
 
     let mut app = Server::with_state(app_state);
     app.with(cors);
+    app.with(driftwood::DevLogger);
     app.at("/login").post(handle_login);
     app.at("/").post(graphql);
     app.at("/").get(handle_graphiql);
