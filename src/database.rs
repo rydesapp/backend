@@ -7,10 +7,7 @@ pub struct Database {
 
 impl Database {
     pub async fn new(database_url: &str) -> anyhow::Result<Database> {
-        let pool = PgPool::builder()
-            .max_size(5) // maximum number of connections in the pool
-            .build(database_url)
-            .await?;
+        let pool = PgPool::builder().max_size(5).build(database_url).await?;
         let db = Database { pool };
         Ok(db)
     }

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use async_graphql::*;
-use sqlx::query_as;
+use sqlx::{prelude::*, query_as};
 use uuid::Uuid;
 
 use crate::database::Database;
@@ -32,12 +32,10 @@ impl User {
     pub async fn get_by_id(id: Uuid) -> Result<Option<User>> {
         let database_url = std::env::var("DATABASE_URL")?;
         let dbpool = Database::new(&database_url).await?;
-
-        let row = query_as!(
-            User,
+        let row = query_as::<_, User>(
             r"SELECT uuid, email, first_name, last_name, phone FROM users WHERE uuid = $1;",
-            id
         )
+        .bind(id)
         .fetch_one(&dbpool.pool)
         .await?;
 

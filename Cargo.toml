@@ -1,3 +1,5 @@
+# syntax = denzp/cargo-wharf-frontend:v0.1.0-alpha.2
+
 [package]
 name = "rydes-api"
 version = "0.1.0"
@@ -23,3 +25,4 @@ driftwood = "0.0.3"
 async-sqlx-session = { version = "0.2.0", features = ["pg"] }
 async-session = "2.0.1"
 serde = "1.0.116"
+http-types = "2.5.0"

@@ -4,13 +4,16 @@ use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, Schema,
 };
+
 use async_session::SessionStore;
 use async_sqlx_session::PostgresSessionStore;
 use auth::sign_in;
 use database::Database;
 use graphql_schema::{ContextData, MutationRoot, QueryRoot};
+use http_types::headers::HeaderValue;
 use models::User;
 use std::env;
+use tide::security::{CorsMiddleware, Origin};
 use tide::{
     http::{headers, mime, Cookie},
     Request, Response, Server, StatusCode,
@@ -113,8 +116,13 @@ async fn main() -> Result<()> {
         schema,
         session_store,
     };
+    let cors = CorsMiddleware::new()
+        .allow_methods("GET, POST, OPTIONS".parse::<HeaderValue>().unwrap())
+        .allow_origin(Origin::from("*"))
+        .allow_credentials(false);
 
     let mut app = Server::with_state(app_state);
+    app.with(cors);
     app.at("/login").post(handle_login);
     app.at("/").post(graphql);
     app.at("/").get(handle_graphiql);
