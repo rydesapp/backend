@@ -15,7 +15,7 @@ use models::User;
 use std::env;
 use tide::security::{CorsMiddleware, Origin};
 use tide::{
-    http::{headers, mime, Cookie},
+    http::{headers, mime, Cookie, cookies::SameSite},
     Request, Response, Server, StatusCode,
 };
 
@@ -74,8 +74,14 @@ async fn handle_login(mut req: Request<AppState>) -> tide::Result {
     let mut response = Response::builder(StatusCode::Ok)
         .content_type(mime::JSON)
         .build();
-
-    response.insert_cookie(Cookie::new("session_id", cookie));
+    let cookie = Cookie::build("session_id", cookie)
+        .same_site(SameSite::None)
+        .path("/")
+        .secure(false) // to be enabled with HTTPS
+        .http_only(true)
+        .finish();
+    
+    response.insert_cookie(cookie);
     Ok(response)
 }
 
@@ -120,8 +126,9 @@ async fn main() -> Result<()> {
     };
     let cors = CorsMiddleware::new()
         .allow_methods("GET, POST, OPTIONS".parse::<HeaderValue>().unwrap())
-        .allow_origin(Origin::from("*"))
-        .allow_credentials(false);
+        .allow_origin(Origin::from("http://localhost:3001"))
+        .allow_headers("content-type".parse::<HeaderValue>().unwrap())
+        .allow_credentials(true);
 
     let mut app = Server::with_state(app_state);
     app.with(cors);
