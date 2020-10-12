@@ -1,27 +1,30 @@
-FROM yasuyuky/rust-ssl-static@sha256:3df2c8949e910452ee09a5bcb121fada9790251f4208c6fd97bb09d20542f188 as build
 
-COPY ./ ./
+FROM rust:1.47.0 AS builder
+WORKDIR /app
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -y install ca-certificates libssl-dev && rm -rf /var/lib/apt/lists/*
-
-ENV PKG_CONFIG_ALLOW_CROSS=1
-
+COPY Cargo.toml .
+COPY Cargo.lock .
+RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 
-RUN mkdir -p /build-out
+# We need to touch our real main.rs file or
+# else docker will use the cached one.
+COPY src src
+RUN touch src/main.rs
+RUN cargo build --release
+RUN cargo install --version=0.1.0-beta.1 sqlx-cli --no-default-features --features postgres
+#
+# Size optimization
+#RUN strip /app/target/release/rydes-api/
 
-RUN cp target/release/rydes-api /build-out/
+FROM ubuntu
+RUN apt-get update \
+    && apt-get install libssl1.1 libssl-dev
 
-RUN ls /build-out/
-
-FROM scratch
-
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-
-COPY --from=build /build-out/rydes-api /
-
-ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-ENV SSL_CERT_DIR=/etc/ssl/certs
-
-CMD ["/rydes-api"]
+WORKDIR /app
+COPY --from=builder /app/target/release/rydes-api .
+COPY --from=builder /usr/local/cargo/bin/sqlx .
+COPY migrations migrations
+EXPOSE 3000
+ENV RUST_LOG=main
+ENTRYPOINT ["./rydes-api"]
