@@ -28,7 +28,6 @@ mod models;
 async fn graphql(req: Request<AppState>) -> tide::Result<Response> {
     let schema = req.state().schema.clone();
     let mut current_user = None;
-    dbg!(&req.cookie("session_id"));
     if let Some(session_cookie) = req.cookie("session_id") {
         let user_session = req
             .state()
@@ -36,23 +35,20 @@ async fn graphql(req: Request<AppState>) -> tide::Result<Response> {
             .load_session(session_cookie.value().to_string())
             .await?;
         if let Some(user_session) = &user_session {
-            dbg!(&user_session);
-
             let user_id = user_session.get("user_id");
             if let Some(uid) = user_id {
                 current_user = User::get_by_id(uid).await?;
             }
         }
     }
-    dbg!(&current_user);
-    async_graphql_tide::graphql(req, schema, |query_builder| {
-        if let Some(current_user) = current_user {
+    if let Some(current_user) = current_user {
+        async_graphql_tide::graphql(req, schema, |query_builder| {
             query_builder.data(current_user)
-        } else {
-            query_builder
-        }
-    })
-    .await
+        })
+        .await
+    } else {
+        Ok(Response::new(StatusCode::Unauthorized))
+    }
 }
 
 async fn handle_graphiql(_req: Request<AppState>) -> tide::Result {
@@ -105,6 +101,7 @@ async fn main() -> Result<()> {
     dotenv::dotenv().ok();
     pretty_env_logger::init();
 
+    let fe_url = env::var("FE_URL")?;
     let database_url = env::var("DATABASE_URL")?;
     let listen_addr = env::var("LISTEN_ADDR").unwrap_or(String::from("0.0.0.0:3000"));
 
@@ -126,7 +123,7 @@ async fn main() -> Result<()> {
     };
     let cors = CorsMiddleware::new()
         .allow_methods("GET, POST, OPTIONS".parse::<HeaderValue>().unwrap())
-        .allow_origin(Origin::from("http://localhost:3001"))
+        .allow_origin(Origin::from(fe_url))
         .allow_headers("content-type".parse::<HeaderValue>().unwrap())
         .allow_credentials(true);
 
