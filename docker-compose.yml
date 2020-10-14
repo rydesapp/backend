@@ -1,7 +1,7 @@
 version: "3"
 services:
   api:
-    image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.1.4
+    image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.2.0
     ports:
       - "1234:3000"
     depends_on:
@@ -28,7 +28,7 @@ services:
       - db-data:/var/lib/postgresql/data
 
   migration:
-    image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.1.4
+    image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.2.0
     command: ./sqlx migrate run
     environment:
       DATABASE_URL: "postgresql://zlatan:yeetus@db:5432/rydes"

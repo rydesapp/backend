@@ -1,11 +1,11 @@
-use async_graphql::{Context, FieldResult};
+use async_graphql::{Context, FieldResult, Object};
 
 use super::ContextData;
 use crate::models::*;
 use sqlx::{prelude::*, query_as};
 pub struct QueryRoot;
 
-#[async_graphql::Object]
+#[Object]
 impl QueryRoot {
     pub async fn users(&self, ctx: &Context<'_>) -> FieldResult<Option<Vec<User>>> {
         let data = ctx.data::<ContextData>()?;

@@ -1,12 +1,12 @@
 use super::ContextData;
 use crate::models::*;
 use argon2::{self, Config};
-use async_graphql::{Context, FieldResult};
+use async_graphql::{Context, FieldResult, Object};
 use sqlx::{prelude::*, query_as};
 
 pub struct MutationRoot;
 
-#[async_graphql::Object]
+#[Object]
 impl MutationRoot {
     // #[field(guard(PermissionGuard(permission = "Permission::CreateWaves")))]
     pub async fn mut_fn(&self, ctx: &Context<'_>) -> FieldResult<i32> {

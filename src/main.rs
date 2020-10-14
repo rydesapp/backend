@@ -15,7 +15,7 @@ use models::User;
 use std::env;
 use tide::security::{CorsMiddleware, Origin};
 use tide::{
-    http::{headers, mime, Cookie, cookies::SameSite},
+    http::{cookies::SameSite, headers, mime, Cookie},
     Request, Response, Server, StatusCode,
 };
 
@@ -41,14 +41,11 @@ async fn graphql(req: Request<AppState>) -> tide::Result<Response> {
             }
         }
     }
+    let mut req = async_graphql_tide::receive_request(req).await?;
     if let Some(current_user) = current_user {
-        async_graphql_tide::graphql(req, schema, |query_builder| {
-            query_builder.data(current_user)
-        })
-        .await
-    } else {
-        Ok(Response::new(StatusCode::Unauthorized))
+        req = req.data(current_user);
     }
+    async_graphql_tide::respond(schema.execute(req).await)
 }
 
 async fn handle_graphiql(_req: Request<AppState>) -> tide::Result {
@@ -76,7 +73,7 @@ async fn handle_login(mut req: Request<AppState>) -> tide::Result {
         .secure(false) // to be enabled with HTTPS
         .http_only(true)
         .finish();
-    
+
     response.insert_cookie(cookie);
     Ok(response)
 }
@@ -101,8 +98,8 @@ async fn main() -> Result<()> {
     dotenv::dotenv().ok();
     pretty_env_logger::init();
 
-    let fe_url = env::var("FE_URL")?;
     let database_url = env::var("DATABASE_URL")?;
+    let fe_url = env::var("FE_URL").unwrap_or(String::from("0.0.0.0:3001"));
     let listen_addr = env::var("LISTEN_ADDR").unwrap_or(String::from("0.0.0.0:3000"));
 
     let db = Database::new(&database_url).await?;

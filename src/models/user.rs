@@ -1,10 +1,10 @@
 use anyhow::Result;
-use async_graphql::*;
+use async_graphql::{InputObject, SimpleObject};
 use sqlx::{prelude::*, query_as};
 use uuid::Uuid;
 
 use crate::database::Database;
-#[derive(GQLInputObject)]
+#[derive(InputObject)]
 pub struct UserInput {
     pub first_name: String,
     pub last_name: String,
@@ -12,20 +12,13 @@ pub struct UserInput {
     pub password: String,
 }
 
-#[derive(Debug, Clone, sqlx::FromRow)]
+#[derive(Debug, Clone, sqlx::FromRow, SimpleObject)]
 pub struct User {
     pub uuid: Uuid,
     pub first_name: String,
     pub last_name: String,
     pub email: String,
     pub phone: Option<String>,
-}
-
-#[Object]
-impl User {
-    pub async fn id(&self) -> Uuid {
-        self.uuid
-    }
 }
 
 impl User {
