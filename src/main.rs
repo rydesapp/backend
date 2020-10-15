@@ -78,21 +78,6 @@ async fn handle_login(mut req: Request<AppState>) -> tide::Result {
     Ok(response)
 }
 
-// async fn handle_logout(req: Request<AppState>) -> tide::Result {
-//     let AppState { ref auth, .. } = req.state();
-
-//     let logout_url = auth.get_logout_redirect();
-
-//     let mut resp: Response = Redirect::new(logout_url.to_string()).into();
-
-//     // Remove any bearer cookies we have hanging around
-//     if let Some(cookie) = req.cookie("bearer") {
-//         resp.remove_cookie(cookie);
-//     }
-
-//     Ok(resp)
-// }
-
 #[async_std::main]
 async fn main() -> Result<()> {
     dotenv::dotenv().ok();
@@ -107,12 +92,13 @@ async fn main() -> Result<()> {
     let session_store =
         PostgresSessionStore::new_with_table_name(&database_url, "users_sessions").await?;
 
-    let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
-        .data(ContextData {
-            db,
-            current_user: None,
-        })
-        .finish();
+    let schema = Schema::build(
+        QueryRoot::default(),
+        MutationRoot::default(),
+        EmptySubscription,
+    )
+    .data(ContextData { db })
+    .finish();
 
     let app_state = AppState {
         schema,
