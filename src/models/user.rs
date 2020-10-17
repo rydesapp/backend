@@ -60,6 +60,11 @@ impl UserQuery {
         let user = User::get_by_id(id).await?;
         Ok(user)
     }
+
+    pub async fn me(&self, ctx: &Context<'_>) -> FieldResult<Option<User>> {
+        let current_user = ctx.data::<Option<User>>()?;
+        Ok(current_user.clone())
+    }
 }
 
 #[derive(Default)]

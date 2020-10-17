@@ -42,9 +42,7 @@ async fn graphql(req: Request<AppState>) -> tide::Result<Response> {
         }
     }
     let mut req = async_graphql_tide::receive_request(req).await?;
-    if let Some(current_user) = current_user {
-        req = req.data(current_user);
-    }
+    req = req.data(current_user);
     async_graphql_tide::respond(schema.execute(req).await)
 }
 
@@ -85,7 +83,7 @@ async fn main() -> Result<()> {
 
     let database_url = env::var("DATABASE_URL")?;
     let fe_url = env::var("FE_URL").unwrap_or(String::from("0.0.0.0:3001"));
-    let listen_addr = env::var("LISTEN_ADDR").unwrap_or(String::from("0.0.0.0:3000"));
+    let listen_addr = env::var("LISTEN_ADDR").unwrap_or(String::from("0.0.0.0:1234"));
 
     let db = Database::new(&database_url).await?;
 
@@ -106,6 +104,7 @@ async fn main() -> Result<()> {
         schema,
         session_store,
     };
+
     let cors = CorsMiddleware::new()
         .allow_methods("GET, POST, OPTIONS".parse::<HeaderValue>().unwrap())
         .allow_origin(Origin::from(fe_url))
