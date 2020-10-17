@@ -91,4 +91,26 @@ RETURNING uuid, first_name, last_name, email, phone
         .await?;
         Ok(user_row)
     }
+    pub async fn _sign_in(&self, ctx: &Context<'_>, user: UserInput) -> FieldResult<User> {
+        let data = ctx.data::<ContextData>()?;
+        let config = Config::default();
+        let key = std::env::var("PASSWORD_SALT")?;
+        let hashed_password =
+            argon2::hash_encoded(&user.password.into_bytes(), &key.into_bytes(), &config).unwrap();
+        let user_row = query_as!(
+            User,
+            r#"
+INSERT INTO users ( first_name, last_name, email, password )
+VALUES ( $1, $2, $3, $4 )
+RETURNING uuid, first_name, last_name, email, phone
+        "#,
+            user.first_name,
+            user.last_name,
+            user.email,
+            hashed_password,
+        )
+        .fetch_one(&data.db.pool)
+        .await?;
+        Ok(user_row)
+    }
 }

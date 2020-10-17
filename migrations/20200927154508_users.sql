@@ -7,4 +7,3 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR,
     PRIMARY KEY (uuid)
 );
-

@@ -89,6 +89,8 @@ async fn main() -> Result<()> {
 
     let db = Database::new(&database_url).await?;
 
+    sqlx::migrate!("./migrations").run(&db.pool).await?;
+
     let session_store =
         PostgresSessionStore::new_with_table_name(&database_url, "users_sessions").await?;
 

@@ -1,4 +1,4 @@
-use sqlx::postgres::PgPool;
+use sqlx::postgres::{PgPool, PgPoolOptions};
 
 #[derive(Debug, Clone)]
 pub struct Database {
@@ -7,7 +7,10 @@ pub struct Database {
 
 impl Database {
     pub async fn new(database_url: &str) -> anyhow::Result<Database> {
-        let pool = PgPool::builder().max_size(5).build(database_url).await?;
+        let pool = PgPoolOptions::new()
+            .max_connections(5)
+            .connect(database_url)
+            .await?;
         let db = Database { pool };
         Ok(db)
     }

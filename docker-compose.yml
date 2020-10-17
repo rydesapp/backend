@@ -1,21 +1,23 @@
 version: "3"
 services:
   api:
-    image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.2.0
+    # image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.2.0
+    build:
+      dockerfile: Dockerfile
+      context: .
     ports:
       - "1234:3000"
     depends_on:
-      - migration
+      # - migration
       - db
     links:
       - db
     environment:
       DATABASE_URL: "postgresql://zlatan:yeetus@db:5432/rydes"
       PASSWORD_SALT: "zwh%V5jrbiB6#kvWq3*84qoWDf*zE@b%tbUJ"
+      RUST_LOG: "debug"
   db:
     image: postgres:12
-    mem_limit: 1536MB
-    mem_reservation: 1G
     command:
       ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     environment:
@@ -27,12 +29,12 @@ services:
       - ./database/:/docker-entrypoint-initdb.d/
       - db-data:/var/lib/postgresql/data
 
-  migration:
-    image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.2.0
-    command: ./sqlx migrate run
-    environment:
-      DATABASE_URL: "postgresql://zlatan:yeetus@db:5432/rydes"
-    depends_on:
-      - db
+  # migration:
+  #   image: docker.pkg.github.com/rydesapp/backend/rydes-api:0.2.0
+  #   command: ./sqlx migrate run
+  #   environment:
+  #     DATABASE_URL: "postgresql://zlatan:yeetus@db:5432/rydes"
+  #   depends_on:
+  #     - db
 volumes:
   db-data:

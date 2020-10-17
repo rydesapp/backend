@@ -1,0 +1,162 @@
+{
+  "db": "PostgreSQL",
+  "1592121367386c3aeaba38909b0ca09e783e34e418979c3a88d9378c83f78b47": {
+    "query": "\nINSERT INTO users ( first_name, last_name, email, password )\nVALUES ( $1, $2, $3, $4 )\nRETURNING uuid, first_name, last_name, email, phone\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uuid",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "phone",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
+    }
+  },
+  "8201bbd23bf707e413eb19c77e70c4d2febb97ef10cbfe9a531bb6481f675875": {
+    "query": "SELECT uuid, first_name, last_name, email, phone FROM users;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uuid",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "phone",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
+    }
+  },
+  "9c470b71d561bffb6f822a44d5268794d4573c8592834215fa9899c2fd1dede1": {
+    "query": "SELECT uuid, email, first_name, last_name, phone FROM users WHERE uuid = $1;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uuid",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "phone",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
+    }
+  },
+  "a453168e3e39373609629887485f8c3daed172b28e71a90bc87b67aba709dda8": {
+    "query": "SELECT uuid, password FROM users WHERE email = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uuid",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "password",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  }
+}

@@ -11,7 +11,7 @@ edition = "2018"
 [dependencies]
 async-graphql = "2.0.2"
 tide = "0.13.0"
-sqlx = { version = "0.3.5", features = ["runtime-async-std", "macros", "chrono", "json", "postgres", "uuid"] }
+sqlx = { version = "0.4.0-beta.1", features = ["runtime-async-std", "macros", "chrono", "json", "postgres", "uuid", "offline"] }
 dotenv = "0.15.0"
 pretty_env_logger = "0.4.0"
 chrono = "0.4.13"

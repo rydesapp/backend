@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use async_session::{Session, SessionStore};
 use async_sqlx_session::PostgresSessionStore;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::*, query_as};
+use sqlx::query;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginInfo {
@@ -19,14 +19,7 @@ pub async fn sign_in(
     let database_url = std::env::var("DATABASE_URL")?;
     let dbpool = Database::new(&database_url).await?;
 
-    #[derive(Debug, sqlx::FromRow)]
-    struct UserInfo {
-        uuid: uuid::Uuid,
-        password: String,
-    }
-
-    let row = query_as::<_, UserInfo>(r"SELECT uuid, password FROM users WHERE email = $1")
-        .bind(email)
+    let row = query!(r"SELECT uuid, password FROM users WHERE email = $1", email)
         .fetch_one(&dbpool.pool)
         .await?;
 
